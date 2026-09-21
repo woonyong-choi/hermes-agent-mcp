@@ -2,7 +2,7 @@
 
 ## 0.1.0
 
-First release.
+First release, published as `hermes-agent-mcp` (the PyPI name `hermes-mcp` belongs to mlennie's remote-access bridge; this project is the local, no-network counterpart).
 
 - Works with both `mcp` 1.x (`FastMCP`) and 2.x (`MCPServer`)
 

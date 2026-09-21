@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.json",
-  "name": "io.github.woonyong-choi/hermes-mcp",
+  "name": "io.github.woonyong-choi/hermes-agent-mcp",
   "description": "Drive a local Hermes Agent install: hand it tasks, manage cron jobs, config, skills and the messaging gateway.",
   "repository": {
-    "url": "https://github.com/woonyong-choi/hermes-mcp",
+    "url": "https://github.com/woonyong-choi/hermes-agent-mcp",
     "source": "github"
   },
   "version_detail": {
@@ -12,7 +12,7 @@
   "packages": [
     {
       "registry_name": "pypi",
-      "name": "hermes-mcp",
+      "name": "hermes-agent-mcp",
       "version": "0.1.0",
       "runtime_hint": "uvx",
       "environment_variables": [

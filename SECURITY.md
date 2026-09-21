@@ -1,6 +1,10 @@
 # Security
 
-`hermes-mcp` lets a language model operate a Hermes Agent install, which in turn has a terminal. Please read the *Security model* section of the README before deploying it anywhere other than your own machine.
+`hermes-agent-mcp` lets a language model operate a Hermes Agent install, which in turn has a terminal. Please read the *Security model* section of the README before deploying it anywhere other than your own machine.
+
+## Design boundary
+
+This server never opens a socket. It is spawned by the MCP client over stdio and calls the `hermes` binary as a child process. If you need remote access to Hermes, that is a different threat model — see [mlennie/hermes-mcp](https://github.com/mlennie/hermes-mcp), which is built for it.
 
 ## Reporting
 

@@ -23,7 +23,7 @@ EXPECTED = {
 
 
 def test_server_imports():
-    assert server.mcp.name == "hermes-mcp"
+    assert server.mcp.name == "hermes-agent-mcp"
 
 
 def test_all_tools_are_defined():

@@ -1,8 +1,8 @@
 name: release
 
 # Publishes to PyPI with Trusted Publishing (no API token stored in GitHub).
-# One-time setup on PyPI: Add a pending publisher for project "hermes-mcp",
-# owner "woonyong-choi", repository "hermes-mcp", workflow "release.yml",
+# One-time setup on PyPI: Add a pending publisher for project "hermes-agent-mcp",
+# owner "woonyong-choi", repository "hermes-agent-mcp", workflow "release.yml",
 # environment "pypi". Then push a tag like v0.1.0.
 
 on:

@@ -1,20 +1,34 @@
-# hermes-mcp
+# hermes-agent-mcp
 
-**Drive your [Hermes Agent](https://github.com/NousResearch/hermes-agent) from any MCP client.**
+**Operate your local [Hermes Agent](https://github.com/NousResearch/hermes-agent) install from any MCP client — without exposing it to the network.**
 
-`hermes-mcp` is a Model Context Protocol server that wraps the local `hermes` CLI. Point Claude Code, Cursor, Codex, Hermes itself or any other MCP-capable agent at it and they can hand Hermes a task, inspect and change its config, manage cron jobs, check the gateway and read `hermes doctor` — without a terminal and without ever seeing a token.
+`hermes-agent-mcp` is a Model Context Protocol server that wraps the local `hermes` CLI over stdio. Point Claude Code, Cursor, Codex or any other MCP-capable agent at it and they can hand Hermes a task, read and change its config, manage cron jobs, restart the gateway and run `hermes doctor` — without a terminal and without ever seeing a token.
 
 ```
-uvx hermes-mcp
+uvx hermes-agent-mcp
 ```
 
-That is the whole install. It runs over stdio next to your existing Hermes install and touches nothing else.
+That is the whole install. No ports, no tunnel, no OAuth. It runs as a child process of your MCP client, on the same machine as Hermes, and nothing leaves the box.
 
-## Why
+## Why this exists
 
-Hermes is a great always-on agent, but everything about *operating* it happens in a terminal: `hermes cron edit`, `hermes config set`, `hermes gateway restart`. If the agent that wants to do those things has no terminal — a cloud-hosted coding assistant, a desktop app, a phone client — it is stuck asking a human to type for it.
+Hermes is a great always-on agent, but everything about *operating* it happens in a terminal: `hermes cron edit`, `hermes config set`, `hermes gateway restart`. If the agent that wants to do those things has no terminal — a desktop app, a coding assistant sandboxed away from your shell — it is stuck asking a human to type for it.
 
-There are plenty of MCP servers that send Telegram messages. There was none that operates Hermes. This is that one.
+There is already a good project called [hermes-mcp](https://github.com/mlennie/hermes-mcp) by mlennie. It solves a *different* problem: reaching Hermes **remotely**, over HTTP through a cloudflared tunnel with OAuth, so a hosted client can delegate tasks. If that is what you need, use it.
+
+This project was written by someone who did not want that. Opening a Hermes gateway to the internet means an agent with a shell is one leaked token away from anyone. `hermes-agent-mcp` stays local on purpose:
+
+- it never listens on a port — MCP over stdio only
+- it never handles credentials — it calls the CLI, which already has them
+- it exposes the *operations* surface (cron, config, gateway, doctor, skills), not just "send a prompt"
+
+| | hermes-agent-mcp (this) | hermes-mcp (mlennie) |
+|---|---|---|
+| Transport | stdio, local process | HTTP, tunnel + OAuth |
+| Reachable from | MCP clients on the same machine | Anywhere |
+| Surface | 16 tools: ask + cron, config, gateway, doctor, skills, sessions | 4 tools: ask, check, cancel, reset |
+| Typed `config.yaml` writes | Yes | — |
+| Network exposure | None | By design |
 
 ## Tools
 
@@ -40,7 +54,7 @@ There are plenty of MCP servers that send Telegram messages. There was none that
 ### Claude Code
 
 ```
-claude mcp add hermes -- uvx hermes-mcp
+claude mcp add hermes -- uvx hermes-agent-mcp
 ```
 
 ### Cursor / Windsurf / Claude Desktop
@@ -50,7 +64,7 @@ claude mcp add hermes -- uvx hermes-mcp
   "mcpServers": {
     "hermes": {
       "command": "uvx",
-      "args": ["hermes-mcp"]
+      "args": ["hermes-agent-mcp"]
     }
   }
 }
@@ -64,14 +78,14 @@ Hermes can drive its own install — useful for a supervisor profile that manage
 mcp_servers:
   hermes:
     command: uvx
-    args: ["hermes-mcp"]
+    args: ["hermes-agent-mcp"]
 ```
 
 ### From a clone
 
 ```
-git clone https://github.com/woonyong-choi/hermes-mcp
-cd hermes-mcp
+git clone https://github.com/woonyong-choi/hermes-agent-mcp
+cd hermes-agent-mcp
 uv tool install -e .
 ```
 
