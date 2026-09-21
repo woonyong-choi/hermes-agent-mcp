@@ -13,6 +13,7 @@ def _settings(**kw):
         allow_shell=False,
         allow_write=True,
         max_output=1000,
+        caller="Claude",
     )
     base.update(kw)
     return Settings(**base)

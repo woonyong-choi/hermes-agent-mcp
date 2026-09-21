@@ -17,6 +17,7 @@ def _settings(tmp_path: Path) -> Settings:
         allow_shell=False,
         allow_write=True,
         max_output=1000,
+        caller="Claude",
     )
 
 
@@ -76,3 +77,10 @@ def test_signature_matches_hermes_v2_scheme():
     secret, ts, body = "s3cr3t", "1700000000", json.dumps({"text": "hi"}).encode()
     expected = hmac.new(secret.encode(), ts.encode() + b"." + body, hashlib.sha256).hexdigest()
     assert len(expected) == 64
+
+
+def test_caller_labels():
+    assert bridge.label_for("Claude Code") == "✴️ Claude Code"
+    assert bridge.label_for("codex") == "🟢 Codex"
+    assert bridge.label_for("Some Tool") == "🖥 Some Tool"
+    assert bridge.label_for("") == "🖥 Agent"

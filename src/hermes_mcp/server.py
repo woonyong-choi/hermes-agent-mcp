@@ -262,7 +262,9 @@ def bridge_setup(
 
 
 @mcp.tool()
-def bridge_ask(prompt: str, wait_seconds: int = 45, echo: bool = True) -> str:
+def bridge_ask(
+    prompt: str, wait_seconds: int = 45, echo: bool = True, caller: str | None = None
+) -> str:
     """Ask Hermes through the gateway and mirror the exchange into the user's chat.
 
     The prompt is posted into the chat first (prefixed with the bridge label),
@@ -270,9 +272,14 @@ def bridge_ask(prompt: str, wait_seconds: int = 45, echo: bool = True) -> str:
     delivered to the same chat *and* returned here. Keep `wait_seconds` under
     your client's tool timeout; if the reply is not ready you get
     `status: pending` and a `delivery_id` for `bridge_check`.
+
+    The prefix names the caller: set HERMES_MCP_CALLER when registering this
+    server (e.g. "Claude Code", "Codex") or pass `caller` per call.
     """
     try:
-        return _result(bridge.ask(settings, prompt, wait_seconds=wait_seconds, echo=echo))
+        return _result(
+            bridge.ask(settings, prompt, wait_seconds=wait_seconds, echo=echo, caller=caller)
+        )
     except bridge.BridgeError as exc:
         return _result({"ok": False, "error": str(exc)})
 

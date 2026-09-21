@@ -51,7 +51,7 @@ This project was written by someone who did not want that. Opening a Hermes gate
 
 ### `bridge_ask` keeps the phone in the loop
 
-`hermes_ask` runs a one-shot CLI turn: fine for work, but it runs outside the gateway, so nothing appears in the user's chat. `bridge_ask` goes through the gateway's own webhook adapter instead: your prompt is posted into the chat (prefixed `🖥 Claude:`), the agent runs inside the gateway with its full toolset, and the reply lands in the chat *and* comes back to you. The person can pick the thread up on their phone as if they had typed it themselves.
+`hermes_ask` runs a one-shot CLI turn: fine for work, but it runs outside the gateway, so nothing appears in the user's chat. `bridge_ask` goes through the gateway's own webhook adapter instead: your prompt is posted into the chat (prefixed with the caller, e.g. `✴️ Claude Code:` or `🟢 Codex:` — set `HERMES_MCP_CALLER` per registration), the agent runs inside the gateway with its full toolset, and the reply lands in the chat *and* comes back to you. The person can pick the thread up on their phone as if they had typed it themselves.
 
 `bridge_setup` registers two loopback-only, HMAC-signed webhook routes and targets the most recently active chat unless you pass `chat_id`. The secret lives in `$HERMES_HOME/hermes-agent-mcp.json` (mode 0600) and is never returned to the model. The bridged turn does not share the chat's own session history — Hermes keys webhook sessions separately — but memory and skills are shared and the transcript in the chat is continuous.
 
@@ -112,6 +112,7 @@ Everything is an environment variable, so the same server works on macOS, Linux,
 | `HERMES_MCP_TIMEOUT` | `120` | Seconds for ordinary CLI calls |
 | `HERMES_MCP_ASK_TIMEOUT` | `900` | Seconds for `hermes_ask` |
 | `HERMES_MCP_MAX_OUTPUT` | `40000` | Characters returned per call before truncation |
+| `HERMES_MCP_CALLER` | `Claude` | Name shown as the prefix of bridged prompts in the chat (`✴️ Claude Code`, `🟢 Codex`, …). Set it per registration |
 
 ## Security model
 

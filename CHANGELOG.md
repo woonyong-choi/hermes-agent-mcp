@@ -2,6 +2,7 @@
 
 ## 0.2.0
 
+- Bridged prompts are prefixed with the caller (`HERMES_MCP_CALLER` or the `caller` argument): `✴️ Claude Code`, `🟢 Codex`, `🟣 Cursor`, … so a shared chat shows who asked.
 - `bridge_ask` waits for the gateway session to end before reading the reply, so interim progress lines are never returned as the answer.
 - **Bridge**: `bridge_setup`, `bridge_status`, `bridge_ask`, `bridge_check`. Runs the turn inside the gateway via Hermes's own webhook adapter and mirrors both the prompt and the reply into the user's chat (Telegram by default), so an MCP-driven conversation stays visible on their phone. Loopback-only, HMAC-signed, secret stored 0600.
 - `webhook subscribe` added to the CLI allowlist for the bridge setup.

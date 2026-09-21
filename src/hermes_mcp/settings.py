@@ -41,6 +41,7 @@ class Settings:
     allow_shell: bool
     allow_write: bool
     max_output: int
+    caller: str
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -54,6 +55,7 @@ class Settings:
             allow_shell=_flag("HERMES_MCP_ALLOW_SHELL"),
             allow_write=_flag("HERMES_MCP_ALLOW_WRITE", True),
             max_output=_int("HERMES_MCP_MAX_OUTPUT", 40_000),
+            caller=(os.environ.get("HERMES_MCP_CALLER") or "Claude").strip(),
         )
 
     def describe(self) -> dict[str, object]:
@@ -66,4 +68,5 @@ class Settings:
             "ask_timeout_seconds": self.ask_timeout,
             "write_tools_enabled": self.allow_write,
             "shell_tool_enabled": self.allow_shell,
+            "caller": self.caller,
         }

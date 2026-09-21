@@ -42,6 +42,25 @@ DEFAULT_PORT = 8644
 # What the bridged agent may touch. Trusted by construction: loopback + HMAC.
 DEFAULT_TOOLSETS = ["terminal", "file", "code_execution", "web", "memory", "skills", "cronjob"]
 
+# How a bridged prompt is prefixed in the chat, keyed by lower-cased caller name.
+# Telegram cannot render brand icons in message text, so each caller gets a
+# distinct emoji + its name. Unknown callers fall back to a generic screen.
+CALLER_LABELS: dict[str, str] = {
+    "claude": "✴️ Claude",
+    "claude code": "✴️ Claude Code",
+    "claude desktop": "✴️ Claude Desktop",
+    "codex": "🟢 Codex",
+    "cursor": "🟣 Cursor",
+    "windsurf": "🌊 Windsurf",
+    "hermes": "⚕️ Hermes",
+}
+
+
+def label_for(caller: str) -> str:
+    """Chat prefix for ``caller`` (e.g. "Claude Code" -> "✴️ Claude Code")."""
+    key = (caller or "").strip().lower()
+    return CALLER_LABELS.get(key) or f"🖥 {caller.strip() or 'Agent'}"
+
 
 class BridgeError(RuntimeError):
     """Raised when the bridge is not set up or the gateway refuses a request."""
@@ -56,7 +75,6 @@ class BridgeState:
     chat_id: str
     route: str = DEFAULT_ROUTE
     port: int = DEFAULT_PORT
-    label: str = "🖥 Claude"
 
     @property
     def echo_route(self) -> str:
@@ -262,14 +280,16 @@ def ask(
     *,
     wait_seconds: int = 45,
     echo: bool = True,
+    caller: str | None = None,
 ) -> dict[str, Any]:
     """Post ``prompt`` through the bridge and wait up to ``wait_seconds`` for the reply."""
     state = load_state(settings)
     if state is None:
         raise BridgeError("bridge is not set up; call bridge_setup first")
     delivery_id = uuid.uuid4().hex
+    label = label_for(caller or settings.caller)
     if echo:
-        _post(state, state.echo_route, f"{state.label}: {prompt}", f"{delivery_id}-echo")
+        _post(state, state.echo_route, f"{label}: {prompt}", f"{delivery_id}-echo")
     ack = _post(state, state.route, prompt, delivery_id)
 
     deadline = time.time() + max(0, wait_seconds)
@@ -283,6 +303,7 @@ def ask(
         "ok": True,
         "delivery_id": delivery_id,
         "chat": {"platform": state.platform, "chat_id": state.chat_id},
+        "label": label,
         "gateway_ack": ack,
         "reply": reply,
         "status": "done" if reply else "pending",
