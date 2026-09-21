@@ -32,6 +32,7 @@ ALLOWED_SUBCOMMANDS: frozenset[str] = frozenset(
         "sessions",
         "skills",
         "tools",
+        "webhook",
     }
 )
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+
+- **Bridge**: `bridge_setup`, `bridge_status`, `bridge_ask`, `bridge_check`. Runs the turn inside the gateway via Hermes's own webhook adapter and mirrors both the prompt and the reply into the user's chat (Telegram by default), so an MCP-driven conversation stays visible on their phone. Loopback-only, HMAC-signed, secret stored 0600.
+- `webhook subscribe` added to the CLI allowlist for the bridge setup.
+
 ## 0.1.1
 
 - README carries the MCP Registry ownership marker; no code changes

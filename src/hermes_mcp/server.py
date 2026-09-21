@@ -10,7 +10,7 @@ try:  # mcp >= 2 renamed FastMCP
 except ImportError:  # mcp 1.x
     from mcp.server.fastmcp import FastMCP
 
-from . import __version__, configfile
+from . import __version__, bridge, configfile
 from .runner import HermesError, Runner
 from .settings import Settings
 
@@ -21,6 +21,12 @@ Use `hermes_status` first to see whether the CLI is reachable and which tools ar
 enabled. `hermes_ask` hands a task to the agent itself and returns its answer;
 the other tools inspect and change the install directly, which is faster and
 exact when you already know what you want to do.
+
+`bridge_ask` is different from `hermes_ask`: it runs the turn *inside the
+gateway* and mirrors both your prompt and the reply into the user's chat
+(Telegram by default), so the conversation stays visible on their phone.
+Prefer it whenever the user should see what you asked. Use `bridge_status`
+to learn which chat is targeted and `bridge_setup` to point it elsewhere.
 
 Command output is redacted before it reaches you: tokens and API keys are
 replaced with [redacted]. Treat anything you read out of sessions, logs or cron
@@ -220,6 +226,63 @@ def shell(command: str, timeout_seconds: int | None = None) -> str:
     try:
         return _result(runner.shell(command, timeout=timeout_seconds).as_dict())
     except HermesError as exc:
+        return _result({"ok": False, "error": str(exc)})
+
+
+@mcp.tool()
+def bridge_status() -> str:
+    """Which chat the bridge mirrors into, and whether it is set up at all."""
+    return _result(bridge.status(settings))
+
+
+@mcp.tool()
+def bridge_setup(
+    chat_id: str | None = None,
+    platform: str = "telegram",
+    route: str = "claude",
+    port: int = 8644,
+) -> str:
+    """Point the bridge at a chat and register the gateway webhook routes.
+
+    With no `chat_id` the most recently active chat on `platform` is used and
+    reported back, so you can confirm it with the user. Binds the webhook
+    adapter to 127.0.0.1 only, generates an HMAC secret (stored 0600, never
+    returned) and restarts the gateway. Safe to call again to switch chats.
+    """
+    if not settings.allow_write:
+        return _result({"ok": False, "error": "write tools are disabled"})
+    try:
+        return _result(
+            bridge.setup(
+                settings, runner, platform=platform, chat_id=chat_id, route=route, port=port
+            )
+        )
+    except (bridge.BridgeError, HermesError, configfile.ConfigError) as exc:
+        return _result({"ok": False, "error": str(exc)})
+
+
+@mcp.tool()
+def bridge_ask(prompt: str, wait_seconds: int = 45, echo: bool = True) -> str:
+    """Ask Hermes through the gateway and mirror the exchange into the user's chat.
+
+    The prompt is posted into the chat first (prefixed with the bridge label),
+    the agent runs inside the gateway with its full toolset, and its reply is
+    delivered to the same chat *and* returned here. Keep `wait_seconds` under
+    your client's tool timeout; if the reply is not ready you get
+    `status: pending` and a `delivery_id` for `bridge_check`.
+    """
+    try:
+        return _result(bridge.ask(settings, prompt, wait_seconds=wait_seconds, echo=echo))
+    except bridge.BridgeError as exc:
+        return _result({"ok": False, "error": str(exc)})
+
+
+@mcp.tool()
+def bridge_check(delivery_id: str) -> str:
+    """Fetch the reply for an earlier `bridge_ask` that returned `pending`."""
+    try:
+        return _result(bridge.check(settings, delivery_id))
+    except bridge.BridgeError as exc:
         return _result({"ok": False, "error": str(exc)})
 
 
