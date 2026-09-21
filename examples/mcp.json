@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hermes": {
+      "command": "uvx",
+      "args": ["hermes-mcp"],
+      "env": {
+        "HERMES_MCP_ALLOW_WRITE": "1",
+        "HERMES_MCP_ALLOW_SHELL": "0"
+      }
+    }
+  }
+}
