@@ -101,6 +101,16 @@ This server gives a language model the ability to operate an agent that has a te
 
 See [SECURITY.md](SECURITY.md) for reporting.
 
+## Releasing
+
+Tag a version and CI publishes to PyPI via Trusted Publishing and attaches the wheel to a GitHub release:
+
+```
+git tag v0.1.0 && git push --tags
+```
+
+`server.json` at the repo root is the manifest for the [MCP Registry](https://registry.modelcontextprotocol.io); publish it with `mcp-publisher publish` after the PyPI release exists.
+
 ## Development
 
 ```
