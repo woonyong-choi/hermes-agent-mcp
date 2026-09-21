@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- README carries the MCP Registry ownership marker; no code changes
+
 ## 0.1.0
 
 First release, published as `hermes-agent-mcp` (the PyPI name `hermes-mcp` belongs to mlennie's remote-access bridge; this project is the local, no-network counterpart).

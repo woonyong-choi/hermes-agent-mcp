@@ -1,6 +1,6 @@
 [project]
 name = "hermes-agent-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "MCP server that lets any AI agent drive a local Hermes Agent install - sessions, cron jobs, config, skills and gateway."
 readme = "README.md"
 requires-python = ">=3.10"

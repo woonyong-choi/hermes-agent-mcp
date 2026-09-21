@@ -10,6 +10,8 @@ uvx hermes-agent-mcp
 
 That is the whole install. No ports, no tunnel, no OAuth. It runs as a child process of your MCP client, on the same machine as Hermes, and nothing leaves the box.
 
+<sub>mcp-name: io.github.woonyong-choi/hermes-agent-mcp</sub>
+
 ## Why this exists
 
 Hermes is a great always-on agent, but everything about *operating* it happens in a terminal: `hermes cron edit`, `hermes config set`, `hermes gateway restart`. If the agent that wants to do those things has no terminal — a desktop app, a coding assistant sandboxed away from your shell — it is stuck asking a human to type for it.
