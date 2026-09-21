@@ -4,6 +4,8 @@
 
 First release.
 
+- Works with both `mcp` 1.x (`FastMCP`) and 2.x (`MCPServer`)
+
 - Tools: `hermes_status`, `hermes_ask`, `doctor`, `gateway_status`, `gateway_restart`, `cron_list`, `cron_create`, `cron_edit`, `cron_run`, `cron_runs`, `config_get`, `config_set`, `skills_list`, `sessions_list`, `model_info`, `shell`
 - Subcommand allowlist, read-only mode, opt-in shell
 - Redaction of Telegram, Anthropic, OpenAI, GitHub, Slack, AWS tokens and JWTs
