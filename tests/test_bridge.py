@@ -48,19 +48,24 @@ def test_guess_chat_picks_latest(tmp_path):
     assert bridge._guess_chat(_settings(tmp_path), "telegram") == ("222", "new")
 
 
-def test_read_reply_finds_assistant_message(tmp_path):
+def test_read_reply_waits_for_session_end(tmp_path):
     s = _settings(tmp_path)
     state = bridge.BridgeState(secret="x", platform="telegram", chat_id="1")
-    db = tmp_path / "state.db"
-    con = sqlite3.connect(db)
-    con.execute("create table sessions (id text, chat_id text)")
+    con = sqlite3.connect(tmp_path / "state.db")
+    con.execute("create table sessions (id text, chat_id text, started_at real, ended_at real)")
     con.execute(
         "create table messages (id integer primary key, session_id text, role text, content text)"
     )
-    con.execute("insert into sessions values ('s1','webhook:claude:abc')")
+    con.execute("insert into sessions values ('s1','webhook:claude:abc',1.0,NULL)")
     con.execute("insert into messages (session_id, role, content) values ('s1','user','hi')")
-    con.execute("insert into messages (session_id, role, content) values ('s1','assistant','')")
+    con.execute(
+        "insert into messages (session_id, role, content) values ('s1','assistant','working')"
+    )
+    con.commit()
+    # still running: interim progress must not be mistaken for the answer
+    assert bridge.read_reply(s, state, "abc") is None
     con.execute("insert into messages (session_id, role, content) values ('s1','assistant','done')")
+    con.execute("update sessions set ended_at = 2.0 where id = 's1'")
     con.commit()
     con.close()
     assert bridge.read_reply(s, state, "abc") == "done"

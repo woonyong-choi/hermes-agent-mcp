@@ -227,18 +227,28 @@ def _post(state: BridgeState, route: str, text: str, delivery_id: str) -> dict[s
 
 
 def read_reply(settings: Settings, state: BridgeState, delivery_id: str) -> str | None:
-    """Last assistant message of the session the gateway opened for this delivery."""
+    """Final assistant message for this delivery, or None while the turn is still running.
+
+    Hermes streams interim progress lines as assistant messages before the real
+    answer, so the session must have ended before the last message counts.
+    """
     db = settings.home / "state.db"
     if not db.is_file():
         return None
     chat = f"webhook:{state.route}:{delivery_id}"
     try:
         con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
-        row = con.execute(
-            "select m.content from messages m join sessions s on s.id = m.session_id "
-            "where s.chat_id = ? and m.role = 'assistant' and m.content is not null "
-            "and length(trim(m.content)) > 0 order by m.id desc limit 1",
+        session = con.execute(
+            "select id, ended_at from sessions where chat_id = ? order by started_at desc limit 1",
             (chat,),
+        ).fetchone()
+        if not session or session[1] is None:
+            con.close()
+            return None
+        row = con.execute(
+            "select content from messages where session_id = ? and role = 'assistant' "
+            "and content is not null and length(trim(content)) > 0 order by id desc limit 1",
+            (session[0],),
         ).fetchone()
         con.close()
     except sqlite3.Error:
