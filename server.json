@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.woonyong-choi/hermes-agent-mcp",
-  "description": "Operate a local Hermes Agent install over stdio: tasks, cron jobs, config, gateway, doctor. No network.",
+  "description": "Operate a local Hermes Agent install over stdio: tasks, cron, config, gateway, doctor. No network.",
   "version": "0.1.0",
   "repository": {
     "url": "https://github.com/woonyong-choi/hermes-agent-mcp",
@@ -14,11 +14,28 @@
       "identifier": "hermes-agent-mcp",
       "version": "0.1.0",
       "runtimeHint": "uvx",
-      "transport": { "type": "stdio" },
+      "transport": {
+        "type": "stdio"
+      },
       "environmentVariables": [
-        { "name": "HERMES_HOME", "description": "Hermes data directory (default ~/.hermes)", "isRequired": false, "isSecret": false },
-        { "name": "HERMES_MCP_ALLOW_WRITE", "description": "Allow state-changing tools (default 1)", "isRequired": false, "isSecret": false },
-        { "name": "HERMES_MCP_ALLOW_SHELL", "description": "Enable the shell tool (default 0)", "isRequired": false, "isSecret": false }
+        {
+          "name": "HERMES_HOME",
+          "description": "Hermes data directory (default ~/.hermes)",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "HERMES_MCP_ALLOW_WRITE",
+          "description": "Allow state-changing tools (default 1)",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "HERMES_MCP_ALLOW_SHELL",
+          "description": "Enable the shell tool (default 0)",
+          "isRequired": false,
+          "isSecret": false
+        }
       ]
     }
   ]
