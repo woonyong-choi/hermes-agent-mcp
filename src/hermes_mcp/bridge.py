@@ -42,24 +42,21 @@ DEFAULT_PORT = 8644
 # What the bridged agent may touch. Trusted by construction: loopback + HMAC.
 DEFAULT_TOOLSETS = ["terminal", "file", "code_execution", "web", "memory", "skills", "cronjob"]
 
-# How a bridged prompt is prefixed in the chat, keyed by lower-cased caller name.
-# Telegram cannot render brand icons in message text, so each caller gets a
-# distinct emoji + its name. Unknown callers fall back to a generic screen.
-CALLER_LABELS: dict[str, str] = {
-    "claude": "✴️ Claude",
-    "claude code": "✴️ Claude Code",
-    "claude desktop": "✴️ Claude Desktop",
-    "codex": "🟢 Codex",
-    "cursor": "🟣 Cursor",
-    "windsurf": "🌊 Windsurf",
-    "hermes": "⚕️ Hermes",
-}
+# How a bridged prompt is prefixed in the chat. One quiet marker for every
+# caller keeps a shared chat legible; the caller's name does the distinguishing.
+# Override with HERMES_MCP_LABEL_FORMAT, a template with {caller}, e.g.
+# "[{caller}] " or "{caller} › ".
+DEFAULT_LABEL_FORMAT = "▸ {caller} · "
 
 
-def label_for(caller: str) -> str:
-    """Chat prefix for ``caller`` (e.g. "Claude Code" -> "✴️ Claude Code")."""
-    key = (caller or "").strip().lower()
-    return CALLER_LABELS.get(key) or f"🖥 {caller.strip() or 'Agent'}"
+def label_for(caller: str, fmt: str | None = None) -> str:
+    """Chat prefix for ``caller`` (default: "▸ Claude Code · ")."""
+    name = (caller or "").strip() or "Agent"
+    template = fmt or os.environ.get("HERMES_MCP_LABEL_FORMAT") or DEFAULT_LABEL_FORMAT
+    try:
+        return template.format(caller=name)
+    except (KeyError, IndexError, ValueError):
+        return DEFAULT_LABEL_FORMAT.format(caller=name)
 
 
 class BridgeError(RuntimeError):
@@ -289,7 +286,7 @@ def ask(
     delivery_id = uuid.uuid4().hex
     label = label_for(caller or settings.caller)
     if echo:
-        _post(state, state.echo_route, f"{label}: {prompt}", f"{delivery_id}-echo")
+        _post(state, state.echo_route, f"{label}{prompt}", f"{delivery_id}-echo")
     ack = _post(state, state.route, prompt, delivery_id)
 
     deadline = time.time() + max(0, wait_seconds)

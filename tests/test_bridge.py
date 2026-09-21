@@ -80,7 +80,7 @@ def test_signature_matches_hermes_v2_scheme():
 
 
 def test_caller_labels():
-    assert bridge.label_for("Claude Code") == "✴️ Claude Code"
-    assert bridge.label_for("codex") == "🟢 Codex"
-    assert bridge.label_for("Some Tool") == "🖥 Some Tool"
-    assert bridge.label_for("") == "🖥 Agent"
+    assert bridge.label_for("Claude Code") == "▸ Claude Code · "
+    assert bridge.label_for("") == "▸ Agent · "
+    assert bridge.label_for("Codex", "[{caller}] ") == "[Codex] "
+    assert bridge.label_for("Codex", "{bad}") == "▸ Codex · "
