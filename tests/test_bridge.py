@@ -84,3 +84,11 @@ def test_caller_labels():
     assert bridge.label_for("") == "▸ Agent · "
     assert bridge.label_for("Codex", "[{caller}] ") == "[Codex] "
     assert bridge.label_for("Codex", "{bad}") == "▸ Codex · "
+
+
+def test_state_ignores_unknown_keys(tmp_path):
+    s = _settings(tmp_path)
+    (tmp_path / bridge.STATE_NAME).write_text(
+        json.dumps({"secret": "x", "platform": "telegram", "chat_id": "9", "label": "old"})
+    )
+    assert bridge.load_state(s).chat_id == "9"

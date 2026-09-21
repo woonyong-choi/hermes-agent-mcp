@@ -28,7 +28,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any
 
@@ -90,7 +90,9 @@ def load_state(settings: Settings) -> BridgeState | None:
     if not path.is_file():
         return None
     data = json.loads(path.read_text(encoding="utf-8"))
-    return BridgeState(**data)
+    # Ignore keys written by other versions so an upgrade never breaks the bridge.
+    known = {f.name for f in fields(BridgeState)}
+    return BridgeState(**{k: v for k, v in data.items() if k in known})
 
 
 def _save_state(settings: Settings, state: BridgeState) -> None:
